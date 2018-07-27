@@ -56,7 +56,7 @@ git clone https://github.com/alex-left/pysubrenamer
 ```
 - run setup:
 ```
-python3 setup.py
+sudo python3 setup.py install
 ```
 
 ## USAGE
