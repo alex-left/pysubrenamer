@@ -10,6 +10,7 @@ import argparse
 import pathlib
 import re
 
+__version__ = 'v0.4'
 parser = argparse.ArgumentParser(description="Rename subtitles files with the \
     same filename of their respectives video files \
     allocated in the same directory")
@@ -36,9 +37,10 @@ sub_extensions = [
 ]
 
 episodes_patterns = [
-    r'[sS][0-9]{1,2}[eE][0-9]{1,2}',
-    r'[0-9]{1,2}[xX][0-9]{1,2}'
+    r'[sS]([0-9]{1,2})[eE]([0-9]{1,2})',
+    r'([0-9]{1,2})[xX]([0-9]{1,2})'
 ]
+
 
 class Subrenamer(type(pathlib.Path())):
     extensions = {
@@ -49,18 +51,17 @@ class Subrenamer(type(pathlib.Path())):
     verbose = verbose
 
     def __init__(self, *args, **kwargs):
-        """Initialize the object and init the renamer process."""
+        """Initialize the object"""
         self.filter = name
         self.paired = None
-        self.episode = None
+        self.tv = {}
         self.type = None
-        self.run()
+        self.detect_type()
 
     def run(self):
         """Main workflow. Check if user's argument are a dir or file. Check
         the video extension. If file have an unvalid extension or not exist,
         don't do anything."""
-        self.detect_type()
         if self.type == "dir":
             self.dir_mode()
             return True
@@ -75,7 +76,8 @@ class Subrenamer(type(pathlib.Path())):
         """Instantiate a subrenamer object for each file in given dir"""
         for file in self.iterdir():
             if file.is_file():
-                Subrenamer(file.__str__())
+                file.__init__()
+                file.run()
 
     def detect_episode(self):
         """Check if file is an episode. The filename must have a string that
@@ -84,7 +86,8 @@ class Subrenamer(type(pathlib.Path())):
         for pattern in self.episodes_patterns:
             result = re.search(pattern, self.name)
             if result:
-                self.episode = result.group()
+                self.tv["season"] = int(result.groups()[0])
+                self.tv["episode"] = int(result.groups()[1])
                 return True
         return False
 
@@ -95,7 +98,7 @@ class Subrenamer(type(pathlib.Path())):
             self.type = "dir"
             return True
         if not self.is_file():
-            print("{} is not a valid file, no action taken".format(
+            print("{} is not a valid filename, no action taken".format(
                   self.absolute()))
             return False
         self.detect_episode()
@@ -114,7 +117,7 @@ class Subrenamer(type(pathlib.Path())):
                          if self.filter.lower() in file.name.lower()]
             else:
                 files = list(self.parent.glob("*.{}".format(pattern)))
-            if not self.episode:
+            if not self.tv:
                 if len(files) > 1:
                     print("more than one file found, no action taken over {}".
                           format(self.absolute()))
@@ -124,7 +127,9 @@ class Subrenamer(type(pathlib.Path())):
                     return True
             else:
                 for file in files:
-                    if self.episode in file.name:
+                    file.__init__()
+                    if (self.tv["episode"] == file.tv["episode"] and
+                            self.tv["season"] == file.tv["season"]):
                         self.paired = file
                         return True
                 return False
@@ -153,4 +158,5 @@ class Subrenamer(type(pathlib.Path())):
 
 if __name__ == "__main__":
     for arg in args.target:
-        Subrenamer(arg)
+        target = Subrenamer(arg)
+        target.run()

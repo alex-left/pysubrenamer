@@ -33,12 +33,13 @@ sub_extensions = [
 If you want more extensions you can edit the script or do a pull request.
 
 The script will detect the episodes with pattern "S01E01" or "1x1", you can add
-more if is needed as regex expression into script:
+more regex patterns if is needed into script. Note that you must
+create a group (enclosing in parenthesis) for each number of season and episode.
 
 ```
 episodes_patterns = [
-    r'[sS][0-9]{1,2}[eE][0-9]{1,2}',
-    r'[0-9]{1,2}[xX][0-9]{1,2}'
+    r'[sS]([0-9]{1,2})[eE]([0-9]{1,2})',
+    r'([0-9]{1,2})[xX]([0-9]{1,2})'
 ]
 ```
 
