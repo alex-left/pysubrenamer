@@ -10,7 +10,7 @@ import argparse
 import pathlib
 import re
 
-__version__ = 'v0.6'
+__version__ = 'v0.7'
 parser = argparse.ArgumentParser(description="Rename subtitles files with the \
     same filename of their respectives video files \
     allocated in the same directory")
@@ -37,7 +37,7 @@ sub_extensions = [
 ]
 
 episodes_patterns = [
-    r'[sS]([0-9]{1,2})[eE]([0-9]{1,2})',
+    r'[sS]([0-9]{1,2})[\.\-_]?[eE]([0-9]{1,2})',
     r'([0-9]{1,2})[xX]([0-9]{1,2})'
 ]
 
@@ -50,10 +50,9 @@ class Subrenamer(type(pathlib.Path())):
     episodes_patterns = episodes_patterns
     verbose = verbose
 
-    def __init__(self, path, *args, **kwargs):
+    def __init__(self, path=None, *args, **kwargs):
         """Initialize the object"""
         super().__init__()
-        self.path = path
         self.filter = name
         self.paired = None
         self.tv = {}
@@ -78,7 +77,7 @@ class Subrenamer(type(pathlib.Path())):
         """Instantiate a subrenamer object for each file in given dir"""
         for file in self.iterdir():
             if file.is_file():
-                file.__init__(self.path)
+                file.__init__()
                 file.run()
 
     def detect_episode(self):
@@ -100,7 +99,7 @@ class Subrenamer(type(pathlib.Path())):
             self.type = "dir"
             return True
         if not self.is_file():
-            print("{} is not a valid filename, no action taken".format(
+            print("{} is not a valid filename or not exists, no action taken".format(
                   self.absolute()))
             return False
         self.detect_episode()
@@ -129,18 +128,17 @@ class Subrenamer(type(pathlib.Path())):
                     return True
             else:
                 for file in files:
-                    file.__init__(self.path)
+                    file.__init__()
                     if (self.tv["episode"] == file.tv["episode"] and
                             self.tv["season"] == file.tv["season"]):
                         self.paired = file
                         return True
                 return False
 
-    def print_renamed(self):
+    def print_renamed(self, file):
         """Small function to respect KISS principle in sub_rename method."""
         if self.verbose:
-            print("{} renamed".
-                  format(self.absolute()))
+            print("{} renamed".format(file))
 
     def sub_rename(self):
         """Rename the subtitle with his respective videofile paired if is
@@ -151,10 +149,10 @@ class Subrenamer(type(pathlib.Path())):
                       format(self.absolute()))
             return False
         if self.type == "video":
-            self.print_renamed()
+            self.print_renamed(self.paired.absolute())
             self.paired.rename(self.with_suffix(self.paired.suffix))
         if self.type == "sub":
-            self.print_renamed()
+            self.print_renamed(self.absolute())
             self.rename(self.with_name(self.paired.stem + self.suffix))
 
 
