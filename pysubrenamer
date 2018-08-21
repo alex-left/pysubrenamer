@@ -78,7 +78,7 @@ class Subrenamer(type(pathlib.Path())):
         """Instantiate a subrenamer object for each file in given dir"""
         for file in self.iterdir():
             if file.is_file():
-                file.__init__()
+                file.__init__(self.path)
                 file.run()
 
     def detect_episode(self):
@@ -129,7 +129,7 @@ class Subrenamer(type(pathlib.Path())):
                     return True
             else:
                 for file in files:
-                    file.__init__()
+                    file.__init__(self.path)
                     if (self.tv["episode"] == file.tv["episode"] and
                             self.tv["season"] == file.tv["season"]):
                         self.paired = file
