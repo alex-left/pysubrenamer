@@ -9,7 +9,7 @@ Very useful with TV episodes.
 import argparse
 import pathlib
 import re
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 __version__ = 'v0.6'
 parser = argparse.ArgumentParser(description="Rename subtitles files with the \
@@ -164,6 +164,6 @@ def main(path):
     target.run()
 
 if __name__ == "__main__":
-    pool = ThreadPoolExecutor(max_workers=6)
+    pool = ProcessPoolExecutor(max_workers=8)
     for arg in args.target:
         pool.submit(main, arg)
