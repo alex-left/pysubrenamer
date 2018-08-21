@@ -50,8 +50,10 @@ class Subrenamer(type(pathlib.Path())):
     episodes_patterns = episodes_patterns
     verbose = verbose
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, path, *args, **kwargs):
         """Initialize the object"""
+        super().__init__()
+        self.path = path
         self.filter = name
         self.paired = None
         self.tv = {}
