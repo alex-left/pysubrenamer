@@ -10,7 +10,6 @@ import argparse
 import pathlib
 import re
 
-__version__ = 'v0.7'
 parser = argparse.ArgumentParser(description="Rename subtitles files with the \
     same filename of their respectives video files \
     allocated in the same directory")

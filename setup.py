@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from distutils.core import setup
-import pysubrenamer
 
 setup(
     name='pysubrenamer',
@@ -9,7 +8,7 @@ setup(
     author='Alex Left',
     author_email='alejandro.izquierdo.b@gmail.com',
     url='https://github.com/alex-left/pysubrenamer',
-    version=pysubrenamer.__version__,
+    version='v0.7',
     scripts=['pysubrenamer'],
     license='GPL-v3',
     long_description=open('README.md').read(),
